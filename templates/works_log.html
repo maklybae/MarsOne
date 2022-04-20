@@ -2,6 +2,11 @@
 
 {% block content %}
     <h1>Works log</h1>
+    <div>
+        {% if current_user.is_authenticated %}
+        <a href="job" class="btn btn-secondary">Добавить новость</a>
+        {% endif %}
+    </div>
     {% for job in jobs %}
     <table class="table">
         <thead>
