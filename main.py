@@ -3,8 +3,15 @@ from flask_login import LoginManager, login_user, login_required, logout_user
 from data import db_session
 from data.job import Job
 from data.users import User
+
+
+db_session.global_init('db/blogs.db')
+
+
+from forms.job import JobForm
 from forms.login import LoginForm
 from forms.user import RegisterForm
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -70,6 +77,24 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
+@app.route('/addjob', methods=['GET', 'POST'])
+def addjob():
+    form = JobForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        job = Job()
+        job.team_leader = form.team_leader.data
+        job.job = form.job
+        job.work_size = form.work_size.data
+        job.collaborators = form.collaborators.data
+        job.is_finished = form.is_finished.data
+        job.end_date = form.end_time.data
+        db_sess.add(job)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('addjob.html', form=form)
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -77,10 +102,9 @@ def logout():
     return redirect("/")
 
 
-def main(db_name):
-    db_session.global_init(db_name)
+def main():
     app.run(port=8080, host='127.0.0.1')
 
 
 if __name__ == '__main__':
-    main('db/blogs.db')
+    main()
